@@ -1,0 +1,302 @@
+version: '3.8'
+
+services:
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - federated-network
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo ruok | nc localhost 2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "7071:7071"
+    volumes:
+      - ./monitoring/jmx_prometheus_javaagent-1.5.0.jar:/opt/jmx_exporter/jmx_prometheus_javaagent.jar
+      - ./monitoring/kafka.yml:/opt/jmx_exporter/kafka.yml
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_OPTS: "-javaagent:/opt/jmx_exporter/jmx_prometheus_javaagent.jar=7071:/opt/jmx_exporter/kafka.yml"
+    networks:
+      - federated-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # Federated Server
+  federated-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    container_name: federated-server
+    hostname: federated-server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logs/server:/app/logs
+      - ./models/global:/app/models/global
+    environment:
+      - SERVER_PORT=5000
+      - RETRAINING_INTERVAL=3600
+      - NUM_BANKS=3
+    networks:
+      - federated-network
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:5000/health\").read()' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Bank 1 Client
+  bank1-client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.client
+    container_name: bank1-client
+    depends_on:
+      kafka:
+        condition: service_healthy
+      federated-server:
+        condition: service_healthy
+    volumes:
+      # ⭐ NEW: Mount bank-specific folder
+      - ./data/bank1:/app/data/bank1
+      - ./logs/bank1:/app/logs 
+      - ./models/local/bank_1:/app/models/local/bank_1
+      - ./models/global:/app/models/global
+    environment:
+      - BANK_ID=1
+      - SERVER_HOST=federated-server
+      - SERVER_PORT=5000
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - RETRAINING_INTERVAL=3600
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Bank 2 Client
+  bank2-client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.client
+    container_name: bank2-client
+    depends_on:
+      kafka:
+        condition: service_healthy
+      federated-server:
+        condition: service_healthy
+    volumes:
+      # ⭐ NEW: Mount bank-specific folder
+      - ./data/bank2:/app/data/bank2
+      - ./logs/bank2:/app/logs 
+      - ./models/local/bank_2:/app/models/local/bank_2
+      - ./models/global:/app/models/global
+    environment:
+      - BANK_ID=2
+      - SERVER_HOST=federated-server
+      - SERVER_PORT=5000
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - RETRAINING_INTERVAL=3600
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Bank 3 Client
+  bank3-client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.client
+    container_name: bank3-client
+    depends_on:
+      kafka:
+        condition: service_healthy
+      federated-server:
+        condition: service_healthy
+    volumes:
+      # ⭐ NEW: Mount bank-specific folder
+      - ./data/bank3:/app/data/bank3
+      - ./logs/bank3:/app/logs 
+      - ./models/local/bank_3:/app/models/local/bank_3
+      - ./models/global:/app/models/global
+    environment:
+      - BANK_ID=3
+      - SERVER_HOST=federated-server
+      - SERVER_PORT=5000
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - RETRAINING_INTERVAL=3600
+    networks:
+      - federated-network
+    restart: unless-stopped
+    
+  # Kafka Producer for Bank 1
+  producer-bank1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.kafka
+    container_name: producer-bank1
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      # ⭐ NEW: Mount kafka folder with testing dataset
+      - ./data/kafka:/app/data/kafka
+    environment:
+      - BANK_ID=1
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - TXN_RATE=1.0
+      - MAX_APPLICATIONS=100  # ⭐ NEW: Send 100 applications
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Kafka Producer for Bank 2
+  producer-bank2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.kafka
+    container_name: producer-bank2
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      # ⭐ NEW: Mount kafka folder with testing dataset
+      - ./data/kafka:/app/data/kafka
+    environment:
+      - BANK_ID=2
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - TXN_RATE=1.33
+      - MAX_APPLICATIONS=100  # ⭐ NEW: Send 100 applications
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Kafka Producer for Bank 3
+  producer-bank3:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.kafka
+    container_name: producer-bank3
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      # ⭐ NEW: Mount kafka folder with testing dataset
+      - ./data/kafka:/app/data/kafka
+    environment:
+      - BANK_ID=3
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - TXN_RATE=1.0
+      - MAX_APPLICATIONS=100  # ⭐ NEW: Send 100 applications
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Streamlit Dashboard
+  streamlit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.streamlit
+    container_name: streamlit-dashboard
+    depends_on:
+      - federated-server
+    ports:
+      - "8501:8501"
+    volumes:
+      # ⭐ Mount logs to read bank metrics
+      - ./logs:/app/logs:ro
+    environment:
+      - SERVER_HOST=federated-server
+      - SERVER_PORT=5000
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Grafana for System Monitoring
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Prometheus for Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-storage:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+  # Node Exporter for System Metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - federated-network
+    restart: unless-stopped
+
+networks:
+  federated-network:
+    driver: bridge
+
+volumes:
+  grafana-storage:
+  prometheus-storage:

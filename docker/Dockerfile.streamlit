@@ -1,0 +1,24 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Copy requirements
+COPY dashboards/requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create .streamlit directory for config
+RUN mkdir -p /app/.streamlit
+
+# Copy dashboard code
+COPY dashboards/ .
+
+# ⭐ Copy Streamlit config if exists
+COPY dashboards/.streamlit/config.toml /app/.streamlit/config.toml
+
+# Expose Streamlit port
+EXPOSE 8501
+
+# Run Streamlit
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
