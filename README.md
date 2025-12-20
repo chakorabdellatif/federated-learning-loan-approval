@@ -330,7 +330,7 @@ sequenceDiagram
 
 ```bash
 # 1. Cloner le dépôt
-git clone https://github.com/votre-username/federated-learning-loan-approval.git
+git clone https://github.com/chakorabdellatif/federated-learning-loan-approval.git
 cd federated-learning-loan-approval
 
 # 2. Vérifier la structure des données
