@@ -91,7 +91,6 @@ services:
       federated-server:
         condition: service_healthy
     volumes:
-      # ⭐ NEW: Mount bank-specific folder
       - ./data/bank1:/app/data/bank1
       - ./logs/bank1:/app/logs 
       - ./models/local/bank_1:/app/models/local/bank_1
@@ -118,7 +117,6 @@ services:
       federated-server:
         condition: service_healthy
     volumes:
-      # ⭐ NEW: Mount bank-specific folder
       - ./data/bank2:/app/data/bank2
       - ./logs/bank2:/app/logs 
       - ./models/local/bank_2:/app/models/local/bank_2
@@ -145,7 +143,6 @@ services:
       federated-server:
         condition: service_healthy
     volumes:
-      # ⭐ NEW: Mount bank-specific folder
       - ./data/bank3:/app/data/bank3
       - ./logs/bank3:/app/logs 
       - ./models/local/bank_3:/app/models/local/bank_3
@@ -170,13 +167,12 @@ services:
       kafka:
         condition: service_healthy
     volumes:
-      # ⭐ NEW: Mount kafka folder with testing dataset
       - ./data/kafka:/app/data/kafka
     environment:
       - BANK_ID=1
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - TXN_RATE=1.0
-      - MAX_APPLICATIONS=100  # ⭐ NEW: Send 100 applications
+      - MAX_APPLICATIONS=100 
     networks:
       - federated-network
     restart: unless-stopped
@@ -191,13 +187,12 @@ services:
       kafka:
         condition: service_healthy
     volumes:
-      # ⭐ NEW: Mount kafka folder with testing dataset
       - ./data/kafka:/app/data/kafka
     environment:
       - BANK_ID=2
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - TXN_RATE=1.33
-      - MAX_APPLICATIONS=100  # ⭐ NEW: Send 100 applications
+      - MAX_APPLICATIONS=100 
     networks:
       - federated-network
     restart: unless-stopped
@@ -212,13 +207,12 @@ services:
       kafka:
         condition: service_healthy
     volumes:
-      # ⭐ NEW: Mount kafka folder with testing dataset
       - ./data/kafka:/app/data/kafka
     environment:
       - BANK_ID=3
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - TXN_RATE=1.0
-      - MAX_APPLICATIONS=100  # ⭐ NEW: Send 100 applications
+      - MAX_APPLICATIONS=100  
     networks:
       - federated-network
     restart: unless-stopped
@@ -234,7 +228,6 @@ services:
     ports:
       - "8501:8501"
     volumes:
-      # ⭐ Mount logs to read bank metrics
       - ./logs:/app/logs:ro
     environment:
       - SERVER_HOST=federated-server
