@@ -1,6 +1,5 @@
 """
 Kafka Producer - Streams loan applications from real testing dataset
-⭐ UPDATED: Keeps loan_status in the message (banks will remove it before prediction)
 """
 import os
 import json
