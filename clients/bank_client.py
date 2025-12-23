@@ -1,6 +1,5 @@
 """
-Bank Client - Simplified: Only fetch from server, batch transactions
-⭐ UPDATED: Properly handles loan_status (removes before prediction, keeps for dataset)
+Bank Client :
 """
 import os
 import json
