@@ -1,5 +1,5 @@
 """
-Federated Server - FIXED: Auto-aggregation ONLY at round 0
+Federated Server :
 """
 import os
 import json
