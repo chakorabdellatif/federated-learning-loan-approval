@@ -10,8 +10,6 @@
 - [Installation et Démarrage](#-installation-et-démarrage)
 - [Tableaux de Bord et Monitoring](#-tableaux-de-bord-et-monitoring)
 - [Avantages du Système](#-avantages-du-système)
-- [API Endpoints](#-api-endpoints)
-- [Dépannage](#-dépannage)
 
 ---
 
