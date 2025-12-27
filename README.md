@@ -378,6 +378,7 @@ Accès : [http://localhost:8501](http://localhost:8501)
 #### 📈 Comparaison des Modèles
 
 ![Comparaison des Métriques ML](placeholder_streamlit_models.png)
+<img width="2164" height="1366" alt="Screenshot 2025-12-22 171319" src="https://github.com/user-attachments/assets/a8d9f224-4ca3-4e46-ad7c-ed7b9bb727f3" />
 
 **Métriques affichées par banque** :
 - **Accuracy** : Précision globale du modèle
@@ -391,6 +392,8 @@ Accès : [http://localhost:8501](http://localhost:8501)
 #### 🎬 Streaming Kafka en Temps Réel
 
 ![Visualisation Kafka Streaming](placeholder_streamlit_kafka.png)
+<img width="2192" height="1199" alt="Screenshot 2025-12-22 171410" src="https://github.com/user-attachments/assets/b6f32c42-e526-4799-ba2d-7ee92eecaf08" />
+<img width="2155" height="1372" alt="Screenshot 2025-12-22 171427" src="https://github.com/user-attachments/assets/8781431b-3e64-4734-96a6-18dfc7bb817f" />
 
 **Informations affichées** :
 - Volume de transactions par seconde
@@ -409,6 +412,7 @@ Accès : [http://localhost:3000](http://localhost:3000)
 #### 📊 Dashboard 1 : Utilisation des Ressources
 
 ![Ressources Système](placeholder_grafana_resources.png)
+<img width="2123" height="1172" alt="Screenshot 2025-12-22 171502" src="https://github.com/user-attachments/assets/cf9b23e0-c2bb-4622-b05a-c7e772d556a9" />
 
 **Panels disponibles** :
 - CPU usage par conteneur
@@ -419,22 +423,10 @@ Accès : [http://localhost:3000](http://localhost:3000)
 
 ---
 
-#### 📨 Dashboard 2 : Métriques Kafka
-
-![Métriques Kafka](placeholder_grafana_kafka.png)
-
-**Panels disponibles** :
-- Messages produits par seconde
-- Messages consommés par seconde
-- Lag des consumers
-- Taille des topics
-- Taux d'erreur Kafka
-
----
-
-#### 🌐 Dashboard 3 : Serveur Fédéré
+#### 🌐 Dashboard 2 : Serveur Fédéré
 
 ![Serveur Fédéré](placeholder_grafana_server.png)
+<img width="2133" height="1298" alt="Screenshot 2025-12-22 173057" src="https://github.com/user-attachments/assets/8530a867-ac6c-4119-a6a1-088cfd80c543" />
 
 **Panels disponibles** :
 - Nombre de rounds d'entraînement
@@ -447,15 +439,9 @@ Accès : [http://localhost:3000](http://localhost:3000)
 ---
 
 ### 3. Prometheus (Port 9090)
-
+Grafana's data source
 Accès : [http://localhost:9090](http://localhost:9090)
 
-Métriques disponibles :
-- `federated_training_rounds_total`
-- `federated_models_received`
-- `federated_clients_registered`
-- `federated_aggregation_duration_seconds`
-- `kafka_server_BrokerTopicMetrics_MessagesInPerSec`
 
 ---
 
