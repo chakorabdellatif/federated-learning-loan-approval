@@ -529,3 +529,13 @@ Pour toute question ou suggestion, n'hésitez pas à ouvrir une issue sur GitHub
 ---
 
 **Développé avec ❤️ pour démontrer la puissance de l'apprentissage fédéré dans le secteur bancaire**
+
+
+## 📊 Monitoring, Controlling, Evaluation & QA
+
+This project includes a standardized 4-Pillar Observability and QA framework:
+- **Logs & Prometheus/Grafana Monitoring**: Configured in `monitoring/` with Prometheus scraper configs and Grafana dashboards.
+- **Health Controlling & Evaluation**: Liveness/readiness controllers in `monitoring/health.py` and evaluation harness in `scripts/eval_harness.py`.
+- **QA & Testing**: Automated Pytest/Vitest integration and CI workflows via `.github/workflows/ci_qa_monitoring.yml`.
+
+For complete instructions, architecture details, and commands, see [docs/MONITORING_AND_QA.md](file:///C:\Users\ROG FLOW\Desktop\Projects\Github_Projects\federated-learning-loan-approval\docs\MONITORING_AND_QA.md).
