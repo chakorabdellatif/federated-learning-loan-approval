@@ -550,6 +550,7 @@ Pour toute question ou suggestion, n'hésitez pas à ouvrir une issue sur GitHub
 
 
 ## 👥 Project Engineering Team
+<!-- Co-maintained by Bosaj & chakorabdellatif -->
 
 This project was collaboratively engineered by:
 - **Oussama EL HADJI** — Federated Aggregation Architecture & Evaluation Lead ([GitHub @Bosaj](https://github.com/Bosaj) • [HF @bosaj](https://huggingface.co/bosaj))
