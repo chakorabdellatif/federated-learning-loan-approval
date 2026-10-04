@@ -17,6 +17,7 @@
 
 <p align="center">
   <a href="https://huggingface.co/datasets/bosaj/federated-loan-approval-benchmark" target="_blank"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-Benchmark%20Dataset-00D9FF?style=for-the-badge&logo=huggingface&logoColor=black" alt="Benchmark Dataset" /></a>
+  <a href="streamlit_app.py"><img src="https://img.shields.io/badge/Streamlit-Federated%20Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit Dashboard" /></a>
 </p>
 
 ![CI Pipeline](https://github.com/chakorabdellatif/federated-learning-loan-approval/actions/workflows/ci_qa_monitoring.yml/badge.svg)
